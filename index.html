@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EL JUEGO DE LA VIDA</title>
+    <script src="aframe.min.js"></script>
+    <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+    <!-- Menú HTML -->
+    <div id="menu" style="position: absolute; top: 10px; left: 10px; z-index: 9999;">
+        <button id="restart">REINICAR</button>
+        <button id="start">INICIAR</button>
+        <button id="stop">PARAR</button>
+        <label for="speed">VELOCIDAD:</label>
+        <select id="speed">
+            <option value="1000">1000</option>
+            <option value="500">500</option>
+            <option value="100">300</option>
+            <option value="100">100</option>
+            <option value="2000">2000</option>
+        </select>
+      <br>
+        <a>RECUERDA QUE TIENES QUE APRETAR EL BOTON PARAR PARA ASI AUMENTAR LA VELOCIODAD </a>      <br>
+        <a>LUEGO DAR AL BOTON INICIAR O REINICAR (CADA REINICIO ES ALEATORIO )</a> <br>
+        <p>CELULAS------------VERDES=VIVAS-----ROJAS=MUERTAS</p>     
+
+    </div>
+
+    <a-scene keyboard-shortcuts="enterVR: false">
+        <!-- Camera -->
+        <a-entity camera look-controls wasd-controls position="0 2 10"></a-entity>
+
+        <!-- Grid -->
+        <a-entity id="grid" position="-5 0 -5"></a-entity>
+    </a-scene>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const grid = document.getElementById('grid');
+            const restartButton = document.getElementById('restart');
+            const startButton = document.getElementById('start');
+            const stopButton = document.getElementById('stop');
+            const speedSelect = document.getElementById('speed');
+            const numRows = 10;
+            const numCols = 10;
+            let cellsMatrix = [];
+            let intervalId = null;
+
+            // Función para contar vecinos vivos para una célula
+            function countAliveNeighbors(row, col) {
+                let count = 0;
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        const neighborRow = row + i;
+                        const neighborCol = col + j;
+                        if (neighborRow >= 0 && neighborRow < numRows && neighborCol >= 0 && neighborCol < numCols && !(i === 0 && j === 0)) {
+                            count += cellsMatrix[neighborRow][neighborCol];
+                        }
+                    }
+                }
+                return count;
+            }
+
+            // Función para actualizar el estado de las células según las reglas de Conway
+            function updateCells() {
+                const newCellsMatrix = [];
+                for (let i = 0; i < numRows; i++) {
+                    const newRow = [];
+                    for (let j = 0; j < numCols; j++) {
+                        const aliveNeighbors = countAliveNeighbors(i, j);
+                        let newState = cellsMatrix[i][j];
+                        if (cellsMatrix[i][j] === 1 && (aliveNeighbors < 2 || aliveNeighbors > 3)) {
+                            newState = 0; // Muere debido a sobrepoblación o aislamiento
+                        } else if (cellsMatrix[i][j] === 0 && aliveNeighbors === 3) {
+                            newState = 1; // Nace
+                        }
+                        newRow.push(newState);
+                    }
+                    newCellsMatrix.push(newRow);
+                }
+                return newCellsMatrix;
+            }
+
+            // Función para actualizar el color de las células en la escena
+            function updateScene() {
+                const cells = document.querySelectorAll('.cell');
+                cells.forEach((cell, index) => {
+                    const row = Math.floor(index / numCols);
+                    const col = index % numCols;
+                    const alive = cellsMatrix[row][col];
+                    cell.setAttribute('material', 'color', alive ? '#00FF00' : '#FF0000'); // Verde para células vivas, Rojo para células muertas
+                });
+            }
+
+            // Función para aplicar las reglas y actualizar el estado de las células en la escena
+            function step() {
+                cellsMatrix = updateCells();
+                updateScene();
+            }
+
+            // Función para iniciar el juego
+            function startGame() {
+                const speed = parseInt(speedSelect.value);
+                intervalId = setInterval(step, speed);
+            }
+
+            // Función para detener el juego
+            function stopGame() {
+                clearInterval(intervalId);
+            }
+
+            // Función para reiniciar el juego
+            function restartGame() {
+                stopGame();
+                initializeGrid();
+                startGame();
+            }
+
+            // Inicializar la cuadrícula
+            function initializeGrid() {
+                grid.innerHTML = ''; // Limpiar la cuadrícula existente
+                cellsMatrix = [];
+                for (let i = 0; i < numRows; i++) {
+                    const row = [];
+                    for (let j = 0; j < numCols; j++) {
+                        row.push(Math.random() > 0.5 ? 1 : 0); // Inicializar aleatoriamente células vivas (1) o muertas (0)
+                        const cell = document.createElement('a-box');
+                        cell.setAttribute('class', 'cell');
+                        cell.setAttribute('position', `${i} 0 ${j}`);
+                        grid.appendChild(cell);
+                    }
+                    cellsMatrix.push(row);
+                }
+            }
+
+            // Event listener para reiniciar el juego
+            restartButton.addEventListener('click', restartGame);
+
+            // Event listener para iniciar el juego
+            startButton.addEventListener('click', startGame);
+
+            // Event listener para detener el juego
+            stopButton.addEventListener('click', stopGame);
+
+            // Inicializar el juego automáticamente
+            initializeGrid();
+            startGame();
+        });
+    </script>
+</body>
+</html>

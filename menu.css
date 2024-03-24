@@ -1,0 +1,51 @@
+/* styles.css */
+
+#menu {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center; /* Alinea el contenido al centro */
+    width: 100%; /* Ocupa todo el ancho de la pantalla */
+    box-sizing: border-box; /* Incluye el padding en el ancho total */
+}
+
+button, label, select {
+    margin: 5px; /* Añade un pequeño margen entre elementos */
+}
+
+button, select {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    padding: 8px 16px; /* Aumenta el espacio alrededor del texto */
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.3s; /* Agrega una transición suave al color de fondo */
+}
+
+button:hover, select:hover {
+    background-color: #777; /* Cambia el color de fondo al pasar el cursor sobre el elemento */
+}
+
+label {
+    color: #fff;
+    margin-right: 10px;
+}
+
+select {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+
+
+a{
+    color: #fff;  
+}
+
+p{
+    color: chocolate;
+}
